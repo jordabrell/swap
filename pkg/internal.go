@@ -8,20 +8,33 @@ import (
 	"gopkg.in/ini.v1"
 )
 
+func CheckAndReturnError(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1) 
+	}
+}
+
+func GetHomeDirectory() string {
+	homeDir, err := os.UserHomeDir()
+	CheckAndReturnError(err)
+	return homeDir
+}
 // Check if the file "~/.aws/credentials" exist on the user system
 func FileHomeExist() bool {
-	if _, err := os.Stat("~/.aws/credentials"); err == nil {
-		return true
-	} else {
+	filePath := GetHomeDirectory() + "/.aws/credentials" 
+	if _, err := os.Stat(filePath); err == nil {
 		return false
 	}
+
+	return true
 }
 
 func ReadFile() {
 	// Obtener el directorio de inicio del usuario
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		fmt.Printf("Fail to get home directory: %v", err)
+		fmt.Printf("Fail to get home directory: %v ", err)
 		os.Exit(1)
 	}
 
