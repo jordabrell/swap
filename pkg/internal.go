@@ -8,7 +8,7 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-//Check if the file "~/.aws/credentials" exist on the user system
+// Check if the file "~/.aws/credentials" exist on the user system
 func FileHomeExist() bool {
 	if _, err := os.Stat("~/.aws/credentials"); err == nil {
 		return true
