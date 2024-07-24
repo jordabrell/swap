@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	internal "github.com/jordabrell/swap/packages"
+	internal "github.com/jordabrell/swap/pkg"
 )
 
 func main() {
