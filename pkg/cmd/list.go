@@ -16,7 +16,7 @@ var listCmd = &cobra.Command{
 	Short: "List the profiles",
 	Long: `List all the profiles that you have in your /.aws/credentials file`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Listing profiles:\n")
+		fmt.Printf("Listing profiles:\n\n")
 		internal.ReadFile()
 	},
 }
