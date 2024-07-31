@@ -1,11 +1,11 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
 	"fmt"
+	internal "jordabrell/swap/pkg"
 
 	"github.com/spf13/cobra"
 )
@@ -16,7 +16,8 @@ var listCmd = &cobra.Command{
 	Short: "List the profiles",
 	Long: `List all the profiles that you have in your /.aws/credentials file`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
+		fmt.Println("Listing profiles:\n")
+		internal.ReadFile()
 	},
 }
 
