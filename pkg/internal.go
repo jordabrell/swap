@@ -32,8 +32,7 @@ func FileHomeExist() bool {
 
 func ReadFile() {
 	// Obtener el directorio de inicio del usuario
-	homeDir, err := os.UserHomeDir()
-	CheckAndReturnError(err)
+	homeDir := GetHomeDirectory()
 
 	// Construir la ruta completa al archivo ~/.aws/credentials
 	filePath := filepath.Join(homeDir, ".aws", "credentials")
@@ -52,4 +51,28 @@ func ReadFile() {
 		count ++
 		fmt.Println()
 	}
+}
+
+//Ara farem un altre funció que es digui ReadArray per a que llegeixi la array perfil per perfil
+func ReadArray() []int{
+	homeDir := GetHomeDirectory()
+
+	// Construir la ruta completa al archivo ~/.aws/credentials
+	filePath := filepath.Join(homeDir, ".aws", "credentials")
+
+	// Cargar el archivo INI
+	inidata, err := ini.Load(filePath)
+	CheckAndReturnError(err)
+	
+	var profiles[] int
+	index := 0
+	for _, section := range inidata.Sections() {
+		if section.Name() == "DEFAULT" {
+			continue
+		}
+		profiles = append(profiles, index)
+		index ++
+	}
+
+	return profiles
 }
