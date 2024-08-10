@@ -42,19 +42,17 @@ func ReadFile() {
 	CheckAndReturnError(err)
 
 	fmt.Printf("PROFILE:\n-----\n")
-	var count int32 = 1
 	for _, section := range inidata.Sections() {
 		if section.Name() == "DEFAULT" {
 			continue
 		}
-		fmt.Printf("%d) %s", count, section.Name())
-		count ++
+		fmt.Printf("%s", section.Name())
 		fmt.Println()
 	}
 }
 
 //Ara farem un altre funció que es digui ReadArray per a que llegeixi la array perfil per perfil
-func ReadArray() []int{
+func ReadArray() []string{
 	homeDir := GetHomeDirectory()
 
 	// Construir la ruta completa al archivo ~/.aws/credentials
@@ -64,15 +62,27 @@ func ReadArray() []int{
 	inidata, err := ini.Load(filePath)
 	CheckAndReturnError(err)
 	
-	var profiles[] int
-	index := 0
+	var profiles[] string
 	for _, section := range inidata.Sections() {
 		if section.Name() == "DEFAULT" {
 			continue
 		}
-		profiles = append(profiles, index)
-		index ++
+		profiles = append(profiles, section.Name())
 	}
 
 	return profiles
+}
+
+func CheckArray(profile string) {
+	
+	array := ReadArray()
+	count := 0
+	for _, value := range array {
+		if value == profile {
+			count ++
+		}
+	}
+	if count < 1{
+		fmt.Println("\nOh! It seems that you don't have this profile!\nPlease check yout credentials file")
+	}
 }
