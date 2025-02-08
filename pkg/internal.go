@@ -99,7 +99,7 @@ func ChangeProfile(profileName string) *ini.File {
 	CheckAndReturnError(err)
 
 	//Declarem la secció default
-	defaultSection := inidata.Section("prova")
+	defaultSection := inidata.Section("default")
 	
 	//Creem una nova secció pont
     bridgeSection, err := inidata.NewSection("bridge")
@@ -119,6 +119,7 @@ func ChangeProfile(profileName string) *ini.File {
 		keyName := key.Name()
 		value := targetSection.Key(keyName).String()
 		defaultSection.NewKey(keyName, value)
+		defaultSection.Comment = fmt.Sprintf("swap managed: %s profile", profileName)
 	}
 
 	//Passem les dades del pont a la target
@@ -126,6 +127,7 @@ func ChangeProfile(profileName string) *ini.File {
 		keyName := key.Name()
 		value := bridgeSection.Key(keyName).String()
 		targetSection.NewKey(keyName, value)
+		targetSection.Comment = "swap managed: old default"
 	}
 
 	err = inidata.SaveTo(filePath)
