@@ -1,4 +1,4 @@
-module jordabrell/swap
+module github.com/jordabrell/swap
 
 go 1.22.3
 

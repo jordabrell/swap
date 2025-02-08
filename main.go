@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	internal "jordabrell/swap/pkg"
-	swap "jordabrell/swap/pkg/cmd"
+	internal "github.com/jordabrell/swap/pkg"
+	swap "github.com/jordabrell/swap/pkg/cmd"
 )
 
 func main() {

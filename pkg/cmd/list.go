@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"fmt"
-	internal "jordabrell/swap/pkg"
+	internal "github.com/jordabrell/swap/pkg"
 
 	"github.com/spf13/cobra"
 )
