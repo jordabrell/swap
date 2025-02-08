@@ -83,6 +83,80 @@ func CheckArray(profile string) {
 		}
 	}
 	if count < 1{
-		fmt.Println("\nOh! It seems that you don't have this profile!\nPlease check yout credentials file")
+		fmt.Println("\nOh! It seems that you don't have this profile!\nPlease check your credentials file.")
 	}
+}
+
+func ChangeProfile(profileName string) *ini.File {
+	// Obtener el directorio de inicio del usuario
+	homeDir := GetHomeDirectory()
+
+	// Construir la ruta completa al archivo ~/.aws/credentials
+	filePath := filepath.Join(homeDir, ".aws", "credentials")
+
+	// Cargar el archivo INI
+	inidata, err := ini.Load(filePath)
+	CheckAndReturnError(err)
+
+	//Declarem la secció default
+	defaultSection := inidata.Section("prova")
+	
+	//Creem una nova secció pont
+    bridgeSection, err := inidata.NewSection("bridge")
+    CheckAndReturnError(err)
+
+	//Passem les dades de default al pont
+	for _, key := range defaultSection.Keys(){
+		keyName := key.Name()
+		value := defaultSection.Key(keyName).String()
+		bridgeSection.NewKey(keyName, value)
+	}
+
+	targetSection := inidata.Section(profileName)
+
+	//Passem les dades de la target a la default
+	for _, key := range targetSection.Keys(){
+		keyName := key.Name()
+		value := targetSection.Key(keyName).String()
+		defaultSection.NewKey(keyName, value)
+	}
+
+	//Passem les dades del pont a la target
+	for _, key := range bridgeSection.Keys(){
+		keyName := key.Name()
+		value := bridgeSection.Key(keyName).String()
+		targetSection.NewKey(keyName, value)
+	}
+
+	err = inidata.SaveTo(filePath)
+    if err != nil {
+        fmt.Printf("Error guardando el archivo INI: %v", err)
+    }
+
+	return inidata
+}
+
+func DeleteBridge() *ini.File{
+	// Obtener el directorio de inicio del usuario
+	homeDir := GetHomeDirectory()
+
+	// Construir la ruta completa al archivo ~/.aws/credentials
+	filePath := filepath.Join(homeDir, ".aws", "credentials")
+
+	// Cargar el archivo INI
+	inidata, err := ini.Load(filePath)
+	CheckAndReturnError(err)
+
+	//Comprobamos si el archivo existe
+	_, err = inidata.GetSection("bridge")
+	CheckAndReturnError(err)
+
+	inidata.DeleteSection("bridge")
+
+	err = inidata.SaveTo(filePath)
+    if err != nil {
+        fmt.Printf("Error guardando el archivo INI: %v", err)
+    }
+
+	return inidata
 }

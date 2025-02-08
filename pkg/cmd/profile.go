@@ -15,12 +15,14 @@ var profileCmd = &cobra.Command{
 	Use:   "profile",
 	Short: "Swap the Default profile that you want.",
 	Long: `Swap the Default profile that you want.`,
+	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		
-		var profiles string
-		fmt.Printf("\nWich profile do you want to swap? ")
-		fmt.Scanln(&profiles)
-		internal.CheckArray(profiles)
+		profileName := args[0]
+		internal.CheckArray(profileName)
+		fmt.Println(profileName)
+		internal.ChangeProfile(profileName)
+		internal.DeleteBridge()
 	},
 }
 
