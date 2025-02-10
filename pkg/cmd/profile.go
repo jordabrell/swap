@@ -13,11 +13,11 @@ import (
 // profileCmd represents the profile command
 var profileCmd = &cobra.Command{
 	Use:   "profile",
-	Short: "Swap the Default profile that you want.",
+	Aliases: []string{"pf"},
+	Short: "Change the default aws profile that you want.",
 	Long: `Swap the Default profile that you want.`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		
 		profileName := args[0]
 		internal.CheckArray(profileName)
 		fmt.Println("Your default profile is: ",profileName)
