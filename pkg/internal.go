@@ -8,6 +8,7 @@ import (
 	"gopkg.in/ini.v1"
 )
 
+// Check and return the error.
 func CheckAndReturnError(err error) {
 	if err != nil {
 		fmt.Println(err)
@@ -15,13 +16,14 @@ func CheckAndReturnError(err error) {
 	}
 }
 
+// Get the home directory
 func GetHomeDirectory() string {
 	homeDir, err := os.UserHomeDir()
 	CheckAndReturnError(err)
 	return homeDir
 }
 
-// Check if the file "~/.aws/credentials" exist on the user system
+// Check if "~/.aws/credentials" file exists on the user system
 func FileHomeExist() bool {
 	filePath := GetHomeDirectory() + "/.aws/credentials"
 	if _, err := os.Stat(filePath); err == nil {
@@ -31,14 +33,22 @@ func FileHomeExist() bool {
 	return true
 }
 
+// Check if "~/.swap/saved-configuration" file exists on the user system
+func ConfigFileExist() bool {
+	filePath := GetHomeDirectory() + "/.swap/saved-configuration"
+	if _, err := os.Stat(filePath); err == nil {
+		return false
+	}
+
+	return true
+}
+
+// List all the aws profiles
 func ReadFile() {
-	// Obtener el directorio de inicio del usuario
-	homeDir := GetHomeDirectory()
+	
+	filePath := GetHomeDirectory() + "/.aws/credentials"
 
-	// Construir la ruta completa al archivo ~/.aws/credentials
-	filePath := filepath.Join(homeDir, ".aws", "credentials")
-
-	// Cargar el archivo INI
+	// Load de ini file
 	inidata, err := ini.Load(filePath)
 	CheckAndReturnError(err)
 
@@ -52,12 +62,10 @@ func ReadFile() {
 	}
 }
 
-// Ara farem un altre funció que es digui ReadArray per a que llegeixi la array perfil per perfil
+// Read all the profiles sections
 func ReadArray() []string {
-	homeDir := GetHomeDirectory()
-
-	// Construir la ruta completa al archivo ~/.aws/credentials
-	filePath := filepath.Join(homeDir, ".aws", "credentials")
+	
+	filePath := GetHomeDirectory() + "/.aws/credentials"
 
 	// Cargar el archivo INI
 	inidata, err := ini.Load(filePath)
@@ -74,6 +82,7 @@ func ReadArray() []string {
 	return profiles
 }
 
+// Check if the profile exists
 func CheckArray(profile string) {
 
 	array := ReadArray()
@@ -84,29 +93,26 @@ func CheckArray(profile string) {
 		}
 	}
 	if count < 1 {
-		fmt.Println("\nOh! It seems that you don't have this profile!\nPlease check your credentials file.")
+		fmt.Println("\nswap: oh! It seems that you don't have this profile!\nswap: please check your credentials file.")
 	}
 }
 
+//Change the default profile
 func ChangeProfile(profileName string) *ini.File {
-	// Obtener el directorio de inicio del usuario
-	homeDir := GetHomeDirectory()
+	
+	filePath := GetHomeDirectory() + "/.aws/credentials"
 
-	// Construir la ruta completa al archivo ~/.aws/credentials
-	filePath := filepath.Join(homeDir, ".aws", "credentials")
-
-	// Cargar el archivo INI
+	// Load the ini file
 	inidata, err := ini.Load(filePath)
 	CheckAndReturnError(err)
 
-	//Declarem la secció default
 	defaultSection := inidata.Section("default")
 
-	//Creem una nova secció pont
+	// Create a new bridge section
 	bridgeSection, err := inidata.NewSection("bridge")
 	CheckAndReturnError(err)
 
-	//Passem les dades de default al pont
+	// Change the data between the default and the bridge section
 	for _, key := range defaultSection.Keys() {
 		keyName := key.Name()
 		value := defaultSection.Key(keyName).String()
@@ -115,45 +121,39 @@ func ChangeProfile(profileName string) *ini.File {
 
 	targetSection := inidata.Section(profileName)
 
-	//Passem les dades de la target a la default
+	// Change the data between the target and the default section
 	for _, key := range targetSection.Keys() {
 		keyName := key.Name()
 		value := targetSection.Key(keyName).String()
 		defaultSection.NewKey(keyName, value)
-		defaultSection.Comment = fmt.Sprintf("swap managed: %s profile", profileName)
 	}
 
-	//Passem les dades del pont a la target
+	// Change the data between the bridge and the default section
 	for _, key := range bridgeSection.Keys() {
 		keyName := key.Name()
 		value := bridgeSection.Key(keyName).String()
 		targetSection.NewKey(keyName, value)
-		targetSection.Comment = "swap managed: old default"
 	}
 
 	err = inidata.SaveTo(filePath)
-	if err != nil {
-		fmt.Printf("Error guardando el archivo INI: %v", err)
-	}
+	CheckAndReturnError(err)
 
 	return inidata
 }
 
 func DeleteBridge() *ini.File {
-	// Obtener el directorio de inicio del usuario
-	homeDir := GetHomeDirectory()
+	
+	filePath := GetHomeDirectory() + "/.aws/credentials"
 
-	// Construir la ruta completa al archivo ~/.aws/credentials
-	filePath := filepath.Join(homeDir, ".aws", "credentials")
-
-	// Cargar el archivo INI
+	// Load the ini file
 	inidata, err := ini.Load(filePath)
 	CheckAndReturnError(err)
 
-	//Comprobamos si el archivo existe
+	// Check if the profile exists
 	_, err = inidata.GetSection("bridge")
 	CheckAndReturnError(err)
 
+	// Delete the bridge profile
 	inidata.DeleteSection("bridge")
 
 	err = inidata.SaveTo(filePath)
@@ -165,41 +165,40 @@ func DeleteBridge() *ini.File {
 }
 
 func SaveConfiguration() *ini.File {
+
 	filePath := GetHomeDirectory() + "/.aws/credentials"
 
-	// Cargar el archivo INI original
+	// Load the ini file
 	inidata, err := ini.Load(filePath)
 	CheckAndReturnError(err)
 
-	// Definir la ruta de la copia
 	copyPath := GetHomeDirectory() + "/.swap/saved-configuration"
 
-	// Crear el directorio si no existe
-	dirPath := filepath.Dir(copyPath) // Extrae "/Users/jordabrell/.swap/"
-	err = os.MkdirAll(dirPath, 0755) // Crea el directorio con permisos adecuados
+	// Create the dir
+	dirPath := filepath.Dir(copyPath)
+	err = os.MkdirAll(dirPath, 0755) // Create the dir and assing permissions
 	CheckAndReturnError(err)
 
-	// Guardar la copia del archivo INI
 	err = inidata.SaveTo(copyPath)
 	CheckAndReturnError(err)
 
-	// Retornar el archivo original cargado
+	//Return de ini file
 	return inidata
 }
 
 func RestoreConfiguration() *ini.File {
+
 	filePath := GetHomeDirectory() + "/.aws/credentials"
 
-	// Definir la ruta de la copia
 	copyPath := GetHomeDirectory() + "/.swap/saved-configuration"
 
 	copydata, err := ini.Load(copyPath)
 	CheckAndReturnError(err)
 
-	// Guardar la copia del archivo INI
+	// Save the ini file in the configuration file
 	err = copydata.SaveTo(filePath)
 	CheckAndReturnError(err)
 
-	// Retornar el archivo original cargado
+	// Return the ini file
 	return copydata
 }

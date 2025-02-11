@@ -17,8 +17,8 @@ var saveCmd = &cobra.Command{
 	Long: ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		internal.SaveConfiguration()
-		fmt.Println("Saved well!")
-		fmt.Println("Your configuration is saved in ~/.swap/saved-configuration")
+		fmt.Println("swap: saved well!")
+		fmt.Println("swap: your configuration is saved in ~/.swap/saved-configuration")
 	},
 }
 

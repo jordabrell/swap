@@ -5,6 +5,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	internal "github.com/jordabrell/swap/pkg"
 
 	"github.com/spf13/cobra"
@@ -18,6 +20,10 @@ var profileCmd = &cobra.Command{
 	Long: `Swap the Default profile that you want.`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		if internal.ConfigFileExist() {
+			fmt.Println("swap: the configuration file does not exist.\nswap: please run 'swap save' to save your configuration file.")
+			os.Exit(1)
+		}
 		profileName := args[0]
 		internal.CheckArray(profileName)
 		fmt.Println("Your default profile is: ",profileName)
