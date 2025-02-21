@@ -98,9 +98,53 @@ func CheckArray(profile string) {
 }
 
 //Change the default profile
-func ChangeProfile(profileName string) *ini.File {
+func ChangeCredentials(profileName string) *ini.File {
 	
 	filePath := GetHomeDirectory() + "/.aws/credentials"
+
+	// Load the ini file
+	inidata, err := ini.Load(filePath)
+	CheckAndReturnError(err)
+
+	defaultSection := inidata.Section("default")
+
+	// Create a new bridge section
+	bridgeSection, err := inidata.NewSection("bridge")
+	CheckAndReturnError(err)
+
+	// Change the data between the default and the bridge section
+	for _, key := range defaultSection.Keys() {
+		keyName := key.Name()
+		value := defaultSection.Key(keyName).String()
+		bridgeSection.NewKey(keyName, value)
+	}
+
+	targetSection := inidata.Section(profileName)
+
+	// Change the data between the target and the default section
+	for _, key := range targetSection.Keys() {
+		keyName := key.Name()
+		value := targetSection.Key(keyName).String()
+		defaultSection.NewKey(keyName, value)
+	}
+
+	// Change the data between the bridge and the default section
+	for _, key := range bridgeSection.Keys() {
+		keyName := key.Name()
+		value := bridgeSection.Key(keyName).String()
+		targetSection.NewKey(keyName, value)
+	}
+
+	err = inidata.SaveTo(filePath)
+	CheckAndReturnError(err)
+
+	return inidata
+}
+
+//Change the default profile
+func ChangeConfig(profileName string) *ini.File {
+	
+	filePath := GetHomeDirectory() + "/.aws/config"
 
 	// Load the ini file
 	inidata, err := ini.Load(filePath)
@@ -164,7 +208,30 @@ func DeleteBridge() *ini.File {
 	return inidata
 }
 
-func SaveConfiguration() *ini.File {
+func DeleteBridgeConfig() *ini.File {
+	
+	filePath := GetHomeDirectory() + "/.aws/config"
+
+	// Load the ini file
+	inidata, err := ini.Load(filePath)
+	CheckAndReturnError(err)
+
+	// Check if the profile exists
+	_, err = inidata.GetSection("bridge")
+	CheckAndReturnError(err)
+
+	// Delete the bridge profile
+	inidata.DeleteSection("bridge")
+
+	err = inidata.SaveTo(filePath)
+	if err != nil {
+		fmt.Printf("Error guardando el archivo INI: %v", err)
+	}
+
+	return inidata
+}
+
+func SaveCredentials() *ini.File {
 
 	filePath := GetHomeDirectory() + "/.aws/credentials"
 
@@ -172,7 +239,7 @@ func SaveConfiguration() *ini.File {
 	inidata, err := ini.Load(filePath)
 	CheckAndReturnError(err)
 
-	copyPath := GetHomeDirectory() + "/.swap/saved-configuration"
+	copyPath := GetHomeDirectory() + "/.swap/saved-aws-credentials"
 
 	// Create the dir
 	dirPath := filepath.Dir(copyPath)
@@ -186,11 +253,50 @@ func SaveConfiguration() *ini.File {
 	return inidata
 }
 
-func RestoreConfiguration() *ini.File {
+func SaveConfig() *ini.File {
+
+	filePath := GetHomeDirectory() + "/.aws/config"
+
+	// Load the ini file
+	inidata, err := ini.Load(filePath)
+	CheckAndReturnError(err)
+
+	copyPath := GetHomeDirectory() + "/.swap/saved-aws-config"
+
+	// Create the dir
+	dirPath := filepath.Dir(copyPath)
+	err = os.MkdirAll(dirPath, 0755) // Create the dir and assing permissions
+	CheckAndReturnError(err)
+
+	err = inidata.SaveTo(copyPath)
+	CheckAndReturnError(err)
+
+	//Return de ini file
+	return inidata
+}
+
+func RestoreCredentials() *ini.File {
 
 	filePath := GetHomeDirectory() + "/.aws/credentials"
 
-	copyPath := GetHomeDirectory() + "/.swap/saved-configuration"
+	copyPath := GetHomeDirectory() + "/.swap/saved-aws-credentials"
+
+	copydata, err := ini.Load(copyPath)
+	CheckAndReturnError(err)
+
+	// Save the ini file in the configuration file
+	err = copydata.SaveTo(filePath)
+	CheckAndReturnError(err)
+
+	// Return the ini file
+	return copydata
+}
+
+func RestoreConfig() *ini.File {
+
+	filePath := GetHomeDirectory() + "/.aws/config"
+
+	copyPath := GetHomeDirectory() + "/.swap/saved-aws-config"
 
 	copydata, err := ini.Load(copyPath)
 	CheckAndReturnError(err)

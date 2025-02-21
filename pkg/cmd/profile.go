@@ -27,8 +27,10 @@ var profileCmd = &cobra.Command{
 		profileName := args[0]
 		internal.CheckArray(profileName)
 		fmt.Println("Your default profile is: ",profileName)
-		internal.ChangeProfile(profileName)
+		internal.ChangeCredentials(profileName)
+		internal.ChangeConfig(profileName)
 		internal.DeleteBridge()
+		internal.DeleteBridgeConfig()
 	},
 }
 

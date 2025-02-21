@@ -24,7 +24,8 @@ to quickly create a Cobra application.`,
 		if internal.ConfigFileExist() {
 			fmt.Println("swap: the configuration file does not exist.\nswap: please run 'swap save' to save your configuration file.")
 		}
-		internal.RestoreConfiguration()
+		internal.RestoreCredentials()
+		internal.RestoreConfig()
 		fmt.Println("Restore done!")
 	},
 }

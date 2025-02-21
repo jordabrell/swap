@@ -16,9 +16,11 @@ var saveCmd = &cobra.Command{
 	Short: "Save the actual configuration of ~/.aws/credentials",
 	Long: ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		internal.SaveConfiguration()
+		internal.SaveCredentials()
+		internal.SaveConfig()
 		fmt.Println("swap: saved well!")
-		fmt.Println("swap: your configuration is saved in ~/.swap/saved-configuration")
+		fmt.Println("swap: your credentials configuration is saved in ~/.swap/saved-aws-credentials")
+		fmt.Println("swap: your config configuration is saved in ~/.swap/saved-aws-config")
 	},
 }
 
